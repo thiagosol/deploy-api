@@ -7,7 +7,7 @@ services:
     restart: always
     container_name: deploy-api
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/run/docker.sock:/var/run/docker.sock:ro
       - /opt/auto-deploy:/opt/auto-deploy
     labels:
       - "traefik.enable=true"
@@ -21,6 +21,8 @@ services:
       - "traefik.docker.network=proxy"
     environment:
       - RUST_LOG=info
+      - SSH_PRIVATE_KEY_PATH=/opt/auto-deploy/ssh/deploy_key
+      - SSH_USER=ubuntu
     deploy:
       resources:
         limits:

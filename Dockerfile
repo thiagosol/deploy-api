@@ -15,6 +15,8 @@ FROM debian:bullseye-slim
 
 WORKDIR /app
 
+RUN apt update && apt install -y openssh-client
+
 COPY --from=builder /app/target/x86_64-unknown-linux-musl/release/deploy-api /app/deploy-api
 
 RUN chmod +x /app/deploy-api

@@ -1,0 +1,14 @@
+[package]
+name = "deploy-api"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+actix-web = "4"
+actix-web-httpauth = "0.8"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+env_logger = "0.10"
+dotenv = "0.15"
+log = "0.4"
+tokio = { version = "1", features = ["full"] }

@@ -1,0 +1,31 @@
+version: '3'
+
+services:
+  deploy-api:
+    image: deploy-api
+    pull_policy: never
+    restart: always
+    container_name: deploy-api
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.deploy-api.entrypoints=http"
+      - "traefik.http.routers.deploy-api.rule=Host(`deploy.thiagosol.com`)"
+      - "traefik.http.routers.deploy-api-secure.entrypoints=https"
+      - "traefik.http.routers.deploy-api-secure.rule=Host(`deploy.thiagosol.com`)"
+      - "traefik.http.routers.deploy-api-secure.tls=true"
+      - "traefik.http.routers.deploy-api-secure.service=deploy-api-secure"
+      - "traefik.http.services.deploy-api-secure.loadbalancer.server.port=8080"
+      - "traefik.docker.network=proxy"
+    environment:
+      - RUST_LOG=info
+    deploy:
+      resources:
+        limits:
+          memory: 100M
+
+networks:
+  default:
+    external:
+      name: external-sol-apis

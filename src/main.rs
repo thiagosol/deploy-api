@@ -6,6 +6,8 @@ use std::env;
 use log::info;
 use dotenv::dotenv;
 
+const DIR_BASE: &str = "/opt/auto-deploy";
+
 #[derive(serde::Deserialize)]
 struct DeployRequest {
     service: String,
@@ -33,14 +35,14 @@ async fn deploy(auth: BasicAuth, form: web::Json<DeployRequest>) -> impl Respond
     let branch = form.branch.as_deref().unwrap_or("main");
     let env_vars = form.env_vars.join(" ");
 
-    let log_file_path = format!("/opt/auto-deploy/{}/deploy.log", service_name);
+    let log_file_path = format!("{}/{}/deploy.log", DIR_BASE, service_name);
     
     let mut deploy_cmd = Command::new("/bin/bash");
     deploy_cmd
         .arg("-c")
         .arg(format!(
-            "/opt/deploy.sh {} {} {} >> {} 2>&1 &",
-            service_name, branch, env_vars, log_file_path
+            "{}/deploy.sh {} {} {} >> {} 2>&1 &",
+            DIR_BASE, service_name, branch, env_vars, log_file_path
         ))
         .stdout(Stdio::null())
         .stderr(Stdio::null());
@@ -58,7 +60,7 @@ async fn get_logs(auth: BasicAuth, path: web::Path<String>) -> impl Responder {
     }
 
     let service_name = path.into_inner();
-    let log_file_path = format!("/opt/{}/deploy.log", service_name);
+    let log_file_path = format!("{}/{}/deploy.log", DIR_BASE, service_name);
 
     let mut file = match File::open(&log_file_path) {
         Ok(f) => f,

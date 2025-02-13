@@ -39,14 +39,8 @@ async fn deploy(auth: BasicAuth, form: web::Json<DeployRequest>) -> impl Respond
     let ssh_key_path = env::var("SSH_PRIVATE_KEY_PATH").unwrap();
     let ssh_user = env::var("SSH_USER").unwrap();
     let ssh_host = env::var("SSH_HOST").unwrap();
-    
-    let service_dir = format!("{}/{}", DIR_BASE, service_name);
-    if let Err(e) = fs::create_dir_all(&service_dir) {
-        log::error!("❌ Falha ao criar diretório do serviço {}: {}", service_name, e);
-        return HttpResponse::InternalServerError().body("Erro ao criar diretório do serviço.");
-    }
 
-    let log_file_path = format!("{}/{}/deploy.log", DIR_BASE, service_name);
+    let log_file_path = format!("{}/logs/{}.log", DIR_BASE, service_name);
 
     if fs::metadata(&log_file_path).is_ok() {
         if let Err(e) = fs::remove_file(&log_file_path) {
@@ -89,7 +83,7 @@ async fn get_logs(auth: BasicAuth, path: web::Path<String>) -> impl Responder {
     }
 
     let service_name = path.into_inner();
-    let log_file_path = format!("{}/{}/deploy.log", DIR_BASE, service_name);
+    let log_file_path = format!("{}/logs/{}.log", DIR_BASE, service_name);
 
     let mut file = match File::open(&log_file_path) {
         Ok(f) => f,

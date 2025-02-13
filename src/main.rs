@@ -7,8 +7,14 @@ use std::env;
 use std::fs;
 use std::process::Command;
 use std::{fs::File, io::Read};
+use lazy_static::lazy_static;
 
 const DIR_BASE: &str = "/opt/auto-deploy";
+
+lazy_static! {
+    static ref DIR_LOGS: String = format!("{}/logs", DIR_BASE);
+    static ref DIR_SCRIPTS: String = format!("{}/scripts", DIR_BASE);
+}
 
 #[derive(serde::Deserialize)]
 struct DeployRequest {
@@ -41,7 +47,7 @@ async fn deploy(auth: BasicAuth, form: web::Json<DeployRequest>) -> impl Respond
     let ssh_user = env::var("SSH_USER").unwrap();
     let ssh_host = env::var("SSH_HOST").unwrap();
 
-    let log_file_path = format!("{}/logs/{}.log", DIR_BASE, service_name);
+    let log_file_path = format!("{}/{}.log", *DIR_LOGS, service_name);
 
     if fs::metadata(&log_file_path).is_ok() {
         if let Err(e) = fs::remove_file(&log_file_path) {
@@ -65,7 +71,7 @@ async fn deploy(auth: BasicAuth, form: web::Json<DeployRequest>) -> impl Respond
             &format!("{}@{}", ssh_user, ssh_host),
             &format!(
                 "{}/deploy.sh {} {} {} >> {} 2>&1 &",
-                DIR_BASE, service_name, branch, env_vars, log_file_path
+                *DIR_SCRIPTS, service_name, branch, env_vars, log_file_path
             ),
         ])
         .output();
@@ -89,7 +95,7 @@ async fn get_logs(auth: BasicAuth, path: web::Path<String>) -> impl Responder {
     }
 
     let service_name = path.into_inner();
-    let log_file_path = format!("{}/logs/{}.log", DIR_BASE, service_name);
+    let log_file_path = format!("{}/{}.log", *DIR_LOGS, service_name);
 
     let mut file = match File::open(&log_file_path) {
         Ok(f) => f,

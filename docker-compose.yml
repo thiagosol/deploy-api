@@ -22,7 +22,6 @@ services:
     environment:
       - RUST_LOG=info
       - SSH_PRIVATE_KEY_PATH=/opt/auto-deploy/ssh/deploy_key
-      - SSH_USER=ubuntu
     networks:
       - external-sol-apis
       - logging-network

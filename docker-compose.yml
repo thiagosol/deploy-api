@@ -11,14 +11,11 @@ services:
       - /opt/auto-deploy:/opt/auto-deploy
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.deploy-api.entrypoints=http"
-      - "traefik.http.routers.deploy-api.rule=Host(`deploy.thiagosol.com`)"
-      - "traefik.http.routers.deploy-api-secure.entrypoints=https"
-      - "traefik.http.routers.deploy-api-secure.rule=Host(`deploy.thiagosol.com`)"
-      - "traefik.http.routers.deploy-api-secure.tls=true"
-      - "traefik.http.routers.deploy-api-secure.service=deploy-api-secure"
-      - "traefik.http.services.deploy-api-secure.loadbalancer.server.port=8080"
-      - "traefik.docker.network=external-sol-apis"
+      - "traefik.http.routers.deploy-api.rule=Host(`api-deploy.thiagosol.com`)"
+      - "traefik.http.routers.deploy-api.entrypoints=https"
+      - "traefik.http.routers.deploy-api.tls=true"
+      - "traefik.http.services.deploy-api.loadbalancer.server.port=8080"
+      - "traefik.docker.network=proxy"
     environment:
       - RUST_LOG=info
       - SSH_PRIVATE_KEY_PATH=/opt/auto-deploy/ssh/deploy_key
